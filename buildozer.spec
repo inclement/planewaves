@@ -35,10 +35,10 @@ version.filename = %(source.dir)s/main.py
 requirements = kivy
 
 # (str) Presplash of the application
-presplash.filename = icon_fade1.png
+presplash.filename = media/icon_fade1.png
 
 # (str) Icon of the application
-icon.filename = icon_fade1.png
+icon.filename = media/icon_fade1.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = portrait
