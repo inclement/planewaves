@@ -32,7 +32,7 @@ from kivy.properties import (StringProperty, ListProperty, ObjectProperty,
 from kivy.metrics import sp
 from shaderwidget import ShaderWidget
 
-__version__ = '0.2'
+__version__ = '0.3'
 
 # This header must be not changed, it contain the minimum information
 # from Kivy.
@@ -88,6 +88,7 @@ shader_bottom_phase = '''
 }
 '''
 
+
 class PlaneWaveShader(ShaderWidget):
     fs = StringProperty(None)
     wavevectors = ListProperty([])
@@ -118,17 +119,22 @@ class PlaneWaveShader(ShaderWidget):
 
     def replace_shader(self, *args):
         self.fs = header + shader_top + self.shader_mid + self.shader_bottom
-        
+
+
 class AppLayout(BoxLayout):
     wavevector_layout = ObjectProperty()
-    
+
+
 class WavevectorMaker(Widget):
     shader_widget = ObjectProperty()
     markers = ListProperty([])
     axes = BooleanProperty(False)
+
     def on_touch_down(self, touch):
-        if not any([marker.collide_point(*touch.pos) for marker in self.markers]):
-            marker = WvMarker(pos=(touch.pos[0]-sp(20), touch.pos[1]-sp(20)), touch=touch)
+        if not any([marker.collide_point(*touch.pos) for
+                    marker in self.markers]):
+            marker = WvMarker(pos=(touch.pos[0]-sp(20), touch.pos[1]-sp(20)),
+                              touch=touch)
             self.add_widget(marker)
             marker.recalculate_k()
             self.markers.append(marker)
@@ -151,26 +157,31 @@ class WavevectorMaker(Widget):
             self.axes = False
         else:
             self.axes = True
-            
+
+
 class WvMarker(Widget):
     colour = ListProperty([0.8, 0.2, 0.2])
     touch = ObjectProperty(None, allownone=True)
     kx = NumericProperty(0.0)
     ky = NumericProperty(0.0)
     k = ReferenceListProperty(kx, ky)
+
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             self.touch = touch
             self.colour = [0.2, 0.8, 0.2]
             return True
         return False
+
     def on_touch_move(self, touch):
         if touch is self.touch:
             self.center = touch.pos
             self.recalculate_k()
+
     def on_touch_up(self, touch):
         if touch is self.touch:
             self.colour = [0.8, 0.2, 0.2]
+
     def recalculate_k(self, *args):
         dx = self.center_x - self.parent.center_x
         dy = self.center_y - self.parent.center_y
@@ -180,9 +191,11 @@ class WvMarker(Widget):
         print 'parent.shader_widget is', self.parent.shader_widget
         self.parent.shader_widget.on_wavevectors()
 
+
 class PlaneWaveApp(App):
     def build(self):
         return AppLayout()
+
     def on_pause(self, *args):
         return True
 
