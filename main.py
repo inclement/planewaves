@@ -125,7 +125,7 @@ class AppLayout(BoxLayout):
 class WavevectorMaker(Widget):
     shader_widget = ObjectProperty()
     markers = ListProperty([])
-    axes = BooleanProperty(True)
+    axes = BooleanProperty(False)
     def on_touch_down(self, touch):
         if not any([marker.collide_point(*touch.pos) for marker in self.markers]):
             marker = WvMarker(pos=(touch.pos[0]-sp(20), touch.pos[1]-sp(20)), touch=touch)
