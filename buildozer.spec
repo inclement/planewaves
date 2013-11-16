@@ -1,13 +1,13 @@
 [app]
 
 # (str) Title of your application
-title = HologramTool
+title = PlaneWaves
 
 # (str) Package name
-package.name = holotool
+package.name = planewaves
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = net.inclem.hologram
+package.domain = net.inclem.planewaves
 
 # (str) Source code where the main.py live
 source.dir = .
@@ -35,10 +35,10 @@ version.filename = %(source.dir)s/main.py
 requirements = kivy
 
 # (str) Presplash of the application
-#presplash.filename = %(source.dir)s/data/presplash.png
+presplash.filename = icon_fade1.png
 
 # (str) Icon of the application
-#icon.filename = %(source.dir)s/data/icon.png
+icon.filename = icon_fade1.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = portrait
