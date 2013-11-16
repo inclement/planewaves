@@ -13,14 +13,17 @@
 <AppLayout>:
     orientation: 'vertical'
     wavevector_layout: wv_layout
-    FloatLayout:
+    Widget:
+        id: container
         ShaderWidget:
             id: shader
-            size_hint: 1, 1
-            pos_hint: {'x': 0, 'y': 0}
-        Widget:
-            size_hint: 1, 1
+            pos: container.pos
+            size: container.size
+        WavevectorMaker:
             id: wv_layout
+            pos: container.pos
+            size: container.size
+            shader_widget: shader
     BoxLayout:
         size_hint_y: None
         height: sp(40)
@@ -34,3 +37,22 @@
         Button:
             text: 'both'
             on_press: shader.mode = 'both'
+        Button:
+            text: 'reset'
+            on_press: wv_layout.reset()
+
+<WvMarker>:
+    size: sp(40), sp(40)
+    size_hint: None, None
+    opacity: 0.2
+    canvas:
+        Color:
+            rgba: 0, 0, 0, 1
+        Ellipse:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgb: self.colour
+        Ellipse:
+            pos: self.x+0.1*self.width, self.y+0.1*self.height
+            size: 0.8*self.width, 0.8*self.height
