@@ -1,20 +1,12 @@
-'''
-Plasma Shader
-=============
-
-This shader example have been taken from http://www.iquilezles.org/apps/shadertoy/
-with some adapation.
-
-This might become a Kivy widget when experimentation will be done.
-'''
-
 
 from kivy.clock import Clock
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 from kivy.core.window import Window
 from kivy.graphics import RenderContext
-from kivy.properties import StringProperty, ListProperty
+from kivy.properties import StringProperty, ListProperty, ObjectProperty
 
 # This header must be not changed, it contain the minimum information from Kivy.
 header = '''
@@ -51,10 +43,20 @@ void main(void)
    float resy = 0.0;
 '''
 
-shader_bottom = '''
+shader_bottom_both = '''
    vec3 rgbcol = hsv2rgb( vec3(atan(resy, resx) / (2.0*3.1416), 1, 1));
 
    gl_FragColor = vec4( rgbcol.x, rgbcol.y, rgbcol.z, sqrt(resx*resx + resy*resy));
+}
+'''
+shader_bottom_intensity = '''
+   gl_FragColor = vec4( 1.0, 1.0, 1.0, sqrt(resx*resx + resy*resy));
+}
+'''
+shader_bottom_phase = '''
+   vec3 rgbcol = hsv2rgb( vec3(atan(resy, resx) / (2.0*3.1416), 1, 1));
+
+   gl_FragColor = vec4( rgbcol.x, rgbcol.y, rgbcol.z, 1.0);
 }
 '''
 
@@ -63,6 +65,16 @@ class ShaderWidget(FloatLayout):
     fs = StringProperty(None)
     wavevectors = ListProperty([])
     shader_mid = StringProperty('')
+    shader_bottom = StringProperty(shader_bottom_both)
+    mode = StringProperty('both')
+
+    def on_mode(self, *args):
+        if self.mode == 'both':
+            self.shader_bottom = shader_bottom_both
+        elif self.mode == 'intensity':
+            self.shader_bottom = shader_bottom_intensity
+        elif self.mode == 'phase':
+            self.shader_bottom = shader_bottom_phase
 
     def on_wavevectors(self, *args):
         shader_mid = ''
@@ -75,9 +87,9 @@ class ShaderWidget(FloatLayout):
         self.shader_mid = shader_mid
 
     def on_shader_mid(self, *args):
-        self.fs = header + shader_top + self.shader_mid + shader_bottom
-        print 'self.fs changed'
-        print self.shader_mid
+        self.fs = header + shader_top + self.shader_mid + self.shader_bottom
+    def on_shader_bottom(self, *args):
+        self.fs = header + shader_top + self.shader_mid + self.shader_bottom
 
     def on_touch_down(self, touch):
         length = min(self.width, self.height)
@@ -106,19 +118,19 @@ class ShaderWidget(FloatLayout):
             shader.fs = old_value
             raise Exception('failed')
 
-        print 'changed shader'
-        print self.canvas.shader.fs
-
     def update_glsl(self, *largs):
         self.canvas['time'] = Clock.get_boottime()
         self.canvas['resolution'] = list(map(float, self.size))
         # This is needed for the default vertex shader.
         self.canvas['projection_mat'] = Window.render_context['projection_mat']
 
+class AppLayout(BoxLayout):
+    wavevector_layout = ObjectProperty()
+    
 
 class PlaneWaveApp(App):
     def build(self):
-        return ShaderWidget(fs=header+shader_top+shader_bottom)
+        return AppLayout()
 
 if __name__ == '__main__':
     PlaneWaveApp().run()

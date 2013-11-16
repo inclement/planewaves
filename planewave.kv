@@ -7,3 +7,28 @@
         Rectangle:
             pos: self.pos
             size: self.size
+
+<AppLayout>:
+    orientation: 'vertical'
+    wavevector_layout: wv_layout
+    FloatLayout:
+        ShaderWidget:
+            id: shader
+            size_hint: 1, 1
+            pos_hint: {'x': 0, 'y': 0}
+        Widget:
+            size_hint: 1, 1
+            id: wv_layout
+    BoxLayout:
+        size_hint_y: None
+        height: sp(40)
+        orientation: 'horizontal'
+        Button:
+            text: 'intensity'
+            on_press: shader.mode = 'intensity'
+        Button:
+            text: 'phase'
+            on_press: shader.mode = 'phase'
+        Button:
+            text: 'both'
+            on_press: shader.mode = 'both'
