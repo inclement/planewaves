@@ -1,4 +1,3 @@
-
 from kivy.clock import Clock
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
@@ -9,6 +8,9 @@ from kivy.core.window import Window
 from kivy.graphics import RenderContext
 from kivy.properties import StringProperty, ListProperty, ObjectProperty, NumericProperty, ReferenceListProperty
 from kivy.metrics import sp
+from shaderwidget import ShaderWidget
+
+__version__ = '0.1'
 
 # This header must be not changed, it contain the minimum information from Kivy.
 header = '''
@@ -63,25 +65,12 @@ shader_bottom_phase = '''
 }
 '''
 
-class ShaderWidget(FloatLayout):
-
+class PlaneWaveShader(ShaderWidget):
     fs = StringProperty(None)
     wavevectors = ListProperty([])
     shader_mid = StringProperty('')
     shader_bottom = StringProperty(shader_bottom_both)
     mode = StringProperty('both')
-
-    def __init__(self, **kwargs):
-        # Instead of using Canvas, we will use a RenderContext,
-        # and change the default shader used.
-        self.canvas = RenderContext()
-
-        # call the constructor of parent
-        # if they are any graphics object, they will be added on our new canvas
-        super(ShaderWidget, self).__init__(**kwargs)
-
-        # We'll update our glsl variables in a clock
-        Clock.schedule_interval(self.update_glsl, 1 / 60.)
 
     def on_mode(self, *args):
         if self.mode == 'both':
@@ -107,33 +96,6 @@ class ShaderWidget(FloatLayout):
     def replace_shader(self, *args):
         self.fs = header + shader_top + self.shader_mid + self.shader_bottom
         
-    def __init__(self, **kwargs):
-        # Instead of using Canvas, we will use a RenderContext,
-        # and change the default shader used.
-        self.canvas = RenderContext()
-
-        # call the constructor of parent
-        # if they are any graphics object, they will be added on our new canvas
-        super(ShaderWidget, self).__init__(**kwargs)
-
-        # We'll update our glsl variables in a clock
-        Clock.schedule_interval(self.update_glsl, 1 / 60.)
-
-    def on_fs(self, instance, value):
-        # set the fragment shader to our source code
-        shader = self.canvas.shader
-        old_value = shader.fs
-        shader.fs = value
-        if not shader.success:
-            shader.fs = old_value
-            raise Exception('failed')
-
-    def update_glsl(self, *largs):
-        self.canvas['time'] = Clock.get_boottime()
-        self.canvas['resolution'] = list(map(float, self.size))
-        # This is needed for the default vertex shader.
-        self.canvas['projection_mat'] = Window.render_context['projection_mat']
-
 class AppLayout(BoxLayout):
     wavevector_layout = ObjectProperty()
     
@@ -170,6 +132,8 @@ class WvMarker(Widget):
         if self.collide_point(*touch.pos):
             self.touch = touch
             self.colour = [0.2, 0.8, 0.2]
+            return True
+        return False
     def on_touch_move(self, touch):
         if touch is self.touch:
             self.center = touch.pos
@@ -189,6 +153,8 @@ class WvMarker(Widget):
 class PlaneWaveApp(App):
     def build(self):
         return AppLayout()
+    def on_pause(self, *args):
+        return True
 
 if __name__ == '__main__':
     PlaneWaveApp().run()

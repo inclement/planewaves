@@ -1,6 +1,6 @@
 #:kivy 1.0
 
-<ShaderWidget>:
+<PlaneWaveShader>:
     canvas:
         Color:
             rgb: 1, 0, 0
@@ -15,7 +15,7 @@
     wavevector_layout: wv_layout
     Widget:
         id: container
-        ShaderWidget:
+        PlaneWaveShader:
             id: shader
             pos: container.pos
             size: container.size
@@ -44,7 +44,7 @@
 <WvMarker>:
     size: sp(40), sp(40)
     size_hint: None, None
-    opacity: 0.2
+    opacity: 0.3
     canvas:
         Color:
             rgba: 0, 0, 0, 1
