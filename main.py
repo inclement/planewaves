@@ -86,11 +86,9 @@ class ShaderWidget(FloatLayout):
             ''').format(kx=kx, ky=ky)
         self.shader_mid = shader_mid
 
-    def on_shader_mid(self, *args):
+    def replace_shader(self, *args):
         self.fs = header + shader_top + self.shader_mid + self.shader_bottom
-    def on_shader_bottom(self, *args):
-        self.fs = header + shader_top + self.shader_mid + self.shader_bottom
-
+        
     def on_touch_down(self, touch):
         length = min(self.width, self.height)
         dx = touch.x - self.center_x
