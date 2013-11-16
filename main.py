@@ -128,7 +128,7 @@ class WavevectorMaker(Widget):
     axes = BooleanProperty(True)
     def on_touch_down(self, touch):
         if not any([marker.collide_point(*touch.pos) for marker in self.markers]):
-            marker = WvMarker(pos=(touch.pos[0]-sp(20), touch.pos[1]-sp(20)))
+            marker = WvMarker(pos=(touch.pos[0]-sp(20), touch.pos[1]-sp(20)), touch=touch)
             self.add_widget(marker)
             marker.recalculate_k()
             self.markers.append(marker)
@@ -172,8 +172,8 @@ class WvMarker(Widget):
         if touch is self.touch:
             self.colour = [0.8, 0.2, 0.2]
     def recalculate_k(self, *args):
-        dx = self.x - self.parent.center_x
-        dy = self.y - self.parent.center_y
+        dx = self.center_x - self.parent.center_x
+        dy = self.center_y - self.parent.center_y
         length = min(self.parent.width, self.parent.height)
         self.kx = dx / length * 30 * 3.1416
         self.ky = dy / length * 30 * 3.1416
