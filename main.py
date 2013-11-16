@@ -26,13 +26,16 @@ from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
 from kivy.graphics import RenderContext
-from kivy.properties import StringProperty, ListProperty, ObjectProperty, NumericProperty, ReferenceListProperty
+from kivy.properties import (StringProperty, ListProperty, ObjectProperty,
+                             NumericProperty, ReferenceListProperty,
+                             BooleanProperty)
 from kivy.metrics import sp
 from shaderwidget import ShaderWidget
 
 __version__ = '0.1'
 
-# This header must be not changed, it contain the minimum information from Kivy.
+# This header must be not changed, it contain the minimum information
+# from Kivy.
 header = '''
 #ifdef GL_ES
 precision highp float;
@@ -122,6 +125,7 @@ class AppLayout(BoxLayout):
 class WavevectorMaker(Widget):
     shader_widget = ObjectProperty()
     markers = ListProperty([])
+    axes = BooleanProperty(True)
     def on_touch_down(self, touch):
         if not any([marker.collide_point(*touch.pos) for marker in self.markers]):
             marker = WvMarker(pos=(touch.pos[0]-sp(20), touch.pos[1]-sp(20)))
@@ -141,6 +145,12 @@ class WavevectorMaker(Widget):
             self.remove_widget(marker)
         self.markers = []
         self.shader_widget.wavevectors = []
+
+    def toggle_axes(self):
+        if self.axes:
+            self.axes = False
+        else:
+            self.axes = True
             
 class WvMarker(Widget):
     colour = ListProperty([0.8, 0.2, 0.2])

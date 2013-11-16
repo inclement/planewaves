@@ -1,4 +1,13 @@
-#:kivy 1.0
+<WavevectorMaker>:
+    canvas:
+        Color:
+            rgba: 0, 0, 0, 0.7 if self.axes else 0
+        Line:
+            width: 2
+            points: [self.x+0.5*self.width, self.y, self.x+0.5*self.width, self.y+self.height]
+        Line:
+            width: 2
+            points: [self.x, self.y+0.5*self.height, self.x+self.width, self.y+0.5*self.height]
 
 <PlaneWaveShader>:
     canvas:
@@ -37,6 +46,9 @@
         Button:
             text: 'both'
             on_press: shader.mode = 'both'
+        Button:
+            text: 'toggle\n axes'
+            on_press: wv_layout.toggle_axes()
         Button:
             text: 'reset'
             on_press: wv_layout.reset()
