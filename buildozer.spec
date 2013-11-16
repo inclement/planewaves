@@ -7,7 +7,7 @@ title = PlaneWaves
 package.name = planewaves
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = net.inclem.planewaves
+package.domain = net.inclem
 
 # (str) Source code where the main.py live
 source.dir = .
