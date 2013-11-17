@@ -32,7 +32,7 @@ from kivy.properties import (StringProperty, ListProperty, ObjectProperty,
 from kivy.metrics import sp
 from shaderwidget import ShaderWidget
 
-__version__ = '0.3'
+__version__ = '0.4'
 
 # This header must be not changed, it contain the minimum information
 # from Kivy.
