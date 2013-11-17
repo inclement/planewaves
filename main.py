@@ -49,11 +49,12 @@ varying vec2 tex_coord0;
 uniform sampler2D texture0;
 '''
 
-# Plasma shader
-shader_top = '''
+shader_uniforms = '''
 uniform vec2 resolution;
 uniform float time;
+'''
 
+shader_top = '''
 vec3 hsv2rgb(vec3 c)
 {
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
@@ -92,6 +93,7 @@ shader_bottom_phase = '''
 class PlaneWaveShader(ShaderWidget):
     fs = StringProperty(None)
     wavevectors = ListProperty([])
+    shader_uniforms = StringProperty('')
     shader_mid = StringProperty('')
     shader_bottom = StringProperty(shader_bottom_both)
     mode = StringProperty('both')
@@ -106,19 +108,36 @@ class PlaneWaveShader(ShaderWidget):
 
     def on_wavevectors(self, *args):
         shader_mid = ''
+        shader_uniforms = ''
+        i = 0
         for wv in self.wavevectors:
-            kx, ky = wv.k
+            wv.number = i
+            current_uniform = 'k{}'.format(i)
+            shader_uniforms += ('''
+            uniform vec2 {};
+            ''').format(current_uniform)
             shader_mid += ('''
-            resx += cos({kx}*x / resolution.x + {ky}*y / resolution.y);
-            resy += sin({kx}*x / resolution.x + {ky}*y / resolution.y);
-            ''').format(kx=kx, ky=ky)
+            resx += cos({cu}.x*x / resolution.x + {cu}.y*y / resolution.y);
+            resy += sin({cu}.x*x / resolution.x + {cu}.y*y / resolution.y);
+            ''').format(cu=current_uniform)
+            i += 1
         shader_mid += ('''
         max_intensity = {};
         ''').format(max(1.0, float(len(self.wavevectors))))
+        self.shader_uniforms = shader_uniforms
         self.shader_mid = shader_mid
+        self.replace_shader()
+        self.update_glsl()
+
+    def update_glsl(self, *args):
+        super(PlaneWaveShader, self).update_glsl(*args)
+        for wv in self.wavevectors:
+            number = wv.number
+            current_uniform = 'k{}'.format(number)
+            self.canvas[current_uniform] = [float(wv.kx), float(wv.ky)]
 
     def replace_shader(self, *args):
-        self.fs = header + shader_top + self.shader_mid + self.shader_bottom
+        self.fs = header + shader_uniforms + self.shader_uniforms + shader_top + self.shader_mid + self.shader_bottom
 
 
 class AppLayout(BoxLayout):
@@ -165,6 +184,7 @@ class WvMarker(Widget):
     kx = NumericProperty(0.0)
     ky = NumericProperty(0.0)
     k = ReferenceListProperty(kx, ky)
+    number = NumericProperty(0)
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
@@ -188,8 +208,6 @@ class WvMarker(Widget):
         length = min(self.parent.width, self.parent.height)
         self.kx = dx / length * 30 * 3.1416
         self.ky = dy / length * 30 * 3.1416
-        print 'parent.shader_widget is', self.parent.shader_widget
-        self.parent.shader_widget.on_wavevectors()
 
 
 class PlaneWaveApp(App):
