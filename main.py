@@ -24,12 +24,14 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
+from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.graphics import RenderContext, Fbo, Rectangle, Color
 from kivy.properties import (StringProperty, ListProperty, ObjectProperty,
                              NumericProperty, ReferenceListProperty,
                              BooleanProperty)
 from kivy.metrics import sp
+from kivy.utils import platform
 from shaderwidget import ShaderWidget
 import toast
 
@@ -213,23 +215,32 @@ class WvMarker(Widget):
         self.kx = dx / length * 30 * 3.1416
         self.ky = dy / length * 30 * 3.1416
 
+class SaveDialog(Popup):
+    shader_size = ListProperty()
+    shader_ratio = NumericProperty()
+    image_x = NumericProperty()
+    image_y = NumericProperty()
 
 class PlaneWaveApp(App):
+    fbo = ObjectProperty(None, allownone=True)
+
     def build(self):
         return AppLayout()
 
     def on_pause(self, *args):
         return True
 
-    def save_image(self):
+    def save_image(self, size=None):
         '''Save an image of the superposition texture.'''
+        if size is None:
+            size = self.root.shader_widget.size
 
         toast.toast('Saving...')
         
         fs = self.root.shader_widget.fs
 
         with self.root.canvas:
-            self.fbo = Fbo(size=self.root.shader_widget.size)
+            self.fbo = Fbo(size=size)
 
         with self.fbo:
             Color(1, 1, 1, 1)
@@ -249,8 +260,14 @@ class PlaneWaveApp(App):
         Clock.schedule_once(self.finish_save, 0)
 
     def finish_save(self, *args):
-        self.fbo.texture.save('test.png')
-        toast.toast('Saved as test.png')
+        if platform == 'android':
+            filen = '/sdcard/pwtest.png'
+        else:
+            filen = 'test.png'
+        self.fbo.texture.save(filen)
+        toast.toast('Saved as {}'.format(filen))
+        self.root.canvas.remove(self.fbo)
+        self.fbo = None
         
 
 if __name__ == '__main__':

@@ -1,3 +1,49 @@
+#:import SaveDialog main.SaveDialog
+
+<SaveDialog>:
+    shader_size: app.root.shader_widget.size
+    shader_ratio: self.shader_size[1] / float(self.shader_size[0])
+    image_x: int(root.shader_size[0]*scaler.value)
+    image_y: int(root.shader_size[1]*scaler.value)
+
+    size_hint: (None, None)
+    size: (sp(250), sp(400))
+
+    title: 'Set save parameters...'
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text_size: self.size
+            halign: 'left'
+            text: 'Saving the image may take a few seconds, especially on slow android storage. It will be faster to save a smaller image.'
+        Label:
+            text: 'Image scale factor:'
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+        Slider:
+            id: scaler
+            min: 0
+            max: 1
+            value: 1
+            size_hint_y: None
+            height: sp(30)
+        Label:
+            text_size: self.size
+            halign: 'center'
+            valign: 'middle'
+            text: 'image size: {}x{}\ntotal pixels: {}'.format(root.image_x, root.image_y, root.image_x*root.image_y)
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: sp(40)
+            Button:
+                text: 'Cancel'
+                on_press: root.dismiss()
+            Button:
+                text: 'Save'
+                on_press: app.save_image(size=(root.image_x, root.image_y))
+
 <WavevectorMaker>:
     canvas:
         Color:
@@ -53,7 +99,7 @@
             ActionSeparator:
             ActionButton:
                 text: 'save'
-                on_press: app.save_image()
+                on_press: SaveDialog().open()
     Widget:
         id: container
         PlaneWaveShader:
