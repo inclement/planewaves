@@ -34,6 +34,7 @@ from kivy.metrics import sp
 from kivy.utils import platform
 from shaderwidget import ShaderWidget
 import toast
+import os
 
 __version__ = '0.4'
 
@@ -261,13 +262,27 @@ class PlaneWaveApp(App):
 
     def finish_save(self, *args):
         if platform == 'android':
-            filen = '/sdcard/pwtest.png'
-        else:
-            filen = 'test.png'
+            if not os.path.exists('/sdcard/planewaves'):
+                os.mkdir('/sdcard/planewaves')
+
+        filen = self.get_save_filen()
+            
         self.fbo.texture.save(filen)
         toast.toast('Saved as {}'.format(filen))
         self.root.canvas.remove(self.fbo)
         self.fbo = None
+
+    def get_save_filen(self):
+        i = 0
+
+        if platform == 'android':
+            while os.path.exists('/sdcard/planewaves/screenshot{}.png'.format(i)):
+                i += 1
+            return '/sdcard/planewaves/screenshot{}.png'.format(i)
+        else:
+            while os.path.exists('screenshot{}.png'.format(i)):
+                i += 1
+            return 'screenshot{}.png'.format(i)
         
 
 if __name__ == '__main__':
