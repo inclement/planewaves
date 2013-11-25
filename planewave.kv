@@ -22,6 +22,36 @@
 <AppLayout>:
     orientation: 'vertical'
     wavevector_layout: wv_layout
+    ActionBar:
+        ActionView:
+            use_separator: True
+            ActionPrevious:
+                title: 'PlaneWaves'
+                with_previous: False
+                app_icon: 'media/icon_fade1.png'
+            ActionOverflow:
+            ActionButton:
+                text: 'intensity'
+                on_press: shader.mode = 'intensity'
+            ActionSeparator:
+            ActionButton:
+                text: 'phase'
+                on_press: shader.mode = 'phase'
+            ActionSeparator:
+            ActionButton:
+                text: 'both'
+                on_press: shader.mode = 'both'
+            ActionSeparator:
+            ActionButton:
+                text: 'toggle\n axes'
+                on_press: wv_layout.toggle_axes()
+            ActionSeparator:
+            ActionButton:
+                text: 'reset'
+                on_press: wv_layout.reset()
+            ActionButton:
+                text: 'save'
+                on_press: app.save_image()
     Widget:
         id: container
         PlaneWaveShader:
@@ -33,25 +63,6 @@
             pos: container.pos
             size: container.size
             shader_widget: shader
-    BoxLayout:
-        size_hint_y: None
-        height: sp(40)
-        orientation: 'horizontal'
-        Button:
-            text: 'intensity'
-            on_press: shader.mode = 'intensity'
-        Button:
-            text: 'phase'
-            on_press: shader.mode = 'phase'
-        Button:
-            text: 'both'
-            on_press: shader.mode = 'both'
-        Button:
-            text: 'toggle\n axes'
-            on_press: wv_layout.toggle_axes()
-        Button:
-            text: 'reset'
-            on_press: wv_layout.reset()
 
 <WvMarker>:
     size: sp(40), sp(40)

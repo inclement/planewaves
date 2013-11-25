@@ -150,8 +150,9 @@ class WavevectorMaker(Widget):
     axes = BooleanProperty(False)
 
     def on_touch_down(self, touch):
-        if not any([marker.collide_point(*touch.pos) for
-                    marker in self.markers]):
+        if (not any([marker.collide_point(*touch.pos) for
+                     marker in self.markers]) and
+            self.collide_point(*touch.pos)):         
             marker = WvMarker(pos=(touch.pos[0]-sp(20), touch.pos[1]-sp(20)),
                               touch=touch)
             self.add_widget(marker)
@@ -216,6 +217,10 @@ class PlaneWaveApp(App):
 
     def on_pause(self, *args):
         return True
+
+    def save_image(self):
+        '''Save an image of the superposition texture.'''
+        pass
 
 if __name__ == '__main__':
     PlaneWaveApp().run()
