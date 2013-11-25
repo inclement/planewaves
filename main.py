@@ -25,12 +25,13 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
-from kivy.graphics import RenderContext
+from kivy.graphics import RenderContext, Fbo, Rectangle, Color
 from kivy.properties import (StringProperty, ListProperty, ObjectProperty,
                              NumericProperty, ReferenceListProperty,
                              BooleanProperty)
 from kivy.metrics import sp
 from shaderwidget import ShaderWidget
+import toast
 
 __version__ = '0.4'
 
@@ -73,13 +74,15 @@ void main(void)
 '''
 
 shader_bottom_both = '''
+   float intensity = sqrt(resx*resx + resy*resy) / max_intensity;
    vec3 rgbcol = hsv2rgb( vec3(atan(resy, resx) / (2.0*3.1416), 1, 1));
 
-   gl_FragColor = vec4( rgbcol.x, rgbcol.y, rgbcol.z, sqrt(resx*resx + resy*resy) / max_intensity);
+   gl_FragColor = vec4( rgbcol.x*intensity, rgbcol.y*intensity, rgbcol.z*intensity, 1.0);
 }
 '''
 shader_bottom_intensity = '''
-   gl_FragColor = vec4( 1.0, 1.0, 1.0, sqrt(resx*resx + resy*resy) / max_intensity);
+   float intensity = sqrt(resx*resx + resy*resy) / max_intensity;
+   gl_FragColor = vec4( 1.0*intensity, 1.0*intensity, 1.0*intensity, 1.0);
 }
 '''
 shader_bottom_phase = '''
@@ -220,7 +223,35 @@ class PlaneWaveApp(App):
 
     def save_image(self):
         '''Save an image of the superposition texture.'''
-        pass
+
+        toast.toast('Saving...')
+        
+        fs = self.root.shader_widget.fs
+
+        with self.root.canvas:
+            self.fbo = Fbo(size=self.root.shader_widget.size)
+
+        with self.fbo:
+            Color(1, 1, 1, 1)
+            Rectangle(size=(10000, 10000))
+
+        self.fbo.shader.fs = fs
+
+        self.fbo['time'] = 0.0
+        self.fbo['resolution'] = map(float, self.fbo.size)
+
+        shader = self.root.shader_widget
+        for wv in shader.wavevectors:
+            number = wv.number
+            current_uniform = 'k{}'.format(number)
+            self.fbo[current_uniform] = [float(wv.kx), float(wv.ky)]
+
+        Clock.schedule_once(self.finish_save, 0)
+
+    def finish_save(self, *args):
+        self.fbo.texture.save('test.png')
+        toast.toast('Saved as test.png')
+        
 
 if __name__ == '__main__':
     PlaneWaveApp().run()

@@ -22,11 +22,12 @@
 <AppLayout>:
     orientation: 'vertical'
     wavevector_layout: wv_layout
+    shader_widget: shader
     ActionBar:
         ActionView:
             use_separator: True
             ActionPrevious:
-                title: 'PlaneWaves'
+                title: ''
                 with_previous: False
                 app_icon: 'media/icon_fade1.png'
             ActionOverflow:
@@ -49,6 +50,7 @@
             ActionButton:
                 text: 'reset'
                 on_press: wv_layout.reset()
+            ActionSeparator:
             ActionButton:
                 text: 'save'
                 on_press: app.save_image()
