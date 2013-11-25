@@ -38,6 +38,16 @@ import os
 
 __version__ = '0.4'
 
+
+if platform == 'android':
+    from jnius import autoclass
+    Environment = autoclass('android.os.Environment')
+    pictures_dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+    pictures_path = pictures_dir.getPath()
+    pictures_dir.mkdirs()
+
+
+
 # This header must be not changed, it contain the minimum information
 # from Kivy.
 header = '''
@@ -261,9 +271,9 @@ class PlaneWaveApp(App):
         Clock.schedule_once(self.finish_save, 0)
 
     def finish_save(self, *args):
-        if platform == 'android':
-            if not os.path.exists('/sdcard/planewaves'):
-                os.mkdir('/sdcard/planewaves')
+        # if platform == 'android':
+        #     if not os.path.exists('{}/planewaves'.format(pictures_path)):
+        #         os.mkdir('{}/planewaves'.format(pictures_path))
 
         filen = self.get_save_filen()
             
@@ -276,13 +286,13 @@ class PlaneWaveApp(App):
         i = 0
 
         if platform == 'android':
-            while os.path.exists('/sdcard/planewaves/screenshot{}.png'.format(i)):
+            while os.path.exists('{}/planewaves{}.png'.format(pictures_path, i)):
                 i += 1
-            return '/sdcard/planewaves/screenshot{}.png'.format(i)
+            return '{}/planewaves/planewaves{}.png'.format(pictures_path, i)
         else:
-            while os.path.exists('screenshot{}.png'.format(i)):
+            while os.path.exists('planewaves{}.png'.format(i)):
                 i += 1
-            return 'screenshot{}.png'.format(i)
+            return 'planewaves{}.png'.format(i)
         
 
 if __name__ == '__main__':
