@@ -48,7 +48,7 @@ if platform == 'android':
 
 
 
-# This header must be not changed, it contain the minimum information
+# This header must be not changed, it contains the minimum information
 # from Kivy.
 header = '''
 #ifdef GL_ES
@@ -66,6 +66,7 @@ uniform sampler2D texture0;
 shader_uniforms = '''
 uniform vec2 resolution;
 uniform float time;
+uniform float time_rate;
 '''
 
 shader_top = '''
@@ -113,6 +114,14 @@ class PlaneWaveShader(ShaderWidget):
     shader_mid = StringProperty('')
     shader_bottom = StringProperty(shader_bottom_both)
     mode = StringProperty('both')
+    time_rate = NumericProperty(3.)
+
+    def __init__(self, *args, **kwargs):
+        super(PlaneWaveShader, self).__init__(*args, **kwargs)
+        self.on_time_rate()
+
+    def on_time_rate(self, *args):
+        self.canvas['time_rate'] = self.time_rate
 
     def on_mode(self, *args):
         if self.mode == 'both':
@@ -133,8 +142,8 @@ class PlaneWaveShader(ShaderWidget):
             uniform vec2 {};
             ''').format(current_uniform)
             shader_mid += ('''
-            resx += cos({cu}.x*x / resolution.x + {cu}.y*y / resolution.y);
-            resy += sin({cu}.x*x / resolution.x + {cu}.y*y / resolution.y);
+            resx += cos({cu}.x*x / resolution.x + {cu}.y*y / resolution.y + time*6.2831/time_rate);
+            resy += sin({cu}.x*x / resolution.x + {cu}.y*y / resolution.y + time*6.2831/time_rate);
             ''').format(cu=current_uniform)
             i += 1
         shader_mid += ('''
@@ -232,14 +241,30 @@ class SaveDialog(Popup):
     image_x = NumericProperty()
     image_y = NumericProperty()
 
+class TimeSlider(Popup):
+    time_rate = NumericProperty(3.)
+
 class PlaneWaveApp(App):
     fbo = ObjectProperty(None, allownone=True)
 
     def build(self):
+        Clock.schedule_interval(self.update_shader_time, 0)
+        self.time_slider = None
         return AppLayout()
+
+    def update_shader_time(self, dt):
+        self.root.shader_widget.canvas['time'] = Clock.get_boottime()
 
     def on_pause(self, *args):
         return True
+
+    def raise_time_slider(self, *args):
+        if self.time_slider is None:
+            self.time_slider = TimeSlider()
+            self.time_slider.ids.slider.value = self.root.shader_widget.time_rate
+            self.time_slider.bind(
+                time_rate=self.root.shader_widget.setter('time_rate'))
+        self.time_slider.open()
 
     def save_image(self, size=None):
         '''Save an image of the superposition texture.'''
@@ -260,6 +285,7 @@ class PlaneWaveApp(App):
         self.fbo.shader.fs = fs
 
         self.fbo['time'] = 0.0
+        self.fbo['time_rate'] = 1.0
         self.fbo['resolution'] = map(float, self.fbo.size)
 
         shader = self.root.shader_widget
