@@ -314,6 +314,7 @@ class PlaneWaveApp(App):
         #         os.mkdir('{}/planewaves'.format(pictures_path))
 
         filen = self.get_save_filen()
+        print('Save filen is', filen)
             
         self.fbo.texture.save(filen)
         toast.toast('Saved as {}'.format(filen))
@@ -326,7 +327,7 @@ class PlaneWaveApp(App):
         if platform == 'android':
             while os.path.exists('{}/planewaves{}.png'.format(pictures_path, i)):
                 i += 1
-            return '{}/planewaves/planewaves{}.png'.format(pictures_path, i)
+            return '{}/planewaves{}.png'.format(pictures_path, i)
         else:
             while os.path.exists('planewaves{}.png'.format(i)):
                 i += 1
