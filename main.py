@@ -36,7 +36,7 @@ from shaderwidget import ShaderWidget
 import toast
 import os
 
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 if platform == 'android':
