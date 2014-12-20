@@ -115,10 +115,14 @@ class PlaneWaveShader(ShaderWidget):
     shader_bottom = StringProperty(shader_bottom_both)
     mode = StringProperty('both')
     time_rate = NumericProperty(3.)
+    time_active = BooleanProperty(False)
 
     def __init__(self, *args, **kwargs):
         super(PlaneWaveShader, self).__init__(*args, **kwargs)
         self.on_time_rate()
+
+    def on_time_active(self, *args):
+        self.on_wavevectors()
 
     def on_time_rate(self, *args):
         self.canvas['time_rate'] = self.time_rate
@@ -141,10 +145,17 @@ class PlaneWaveShader(ShaderWidget):
             shader_uniforms += ('''
             uniform vec2 {};
             ''').format(current_uniform)
-            shader_mid += ('''
-            resx += cos({cu}.x*x / resolution.x + {cu}.y*y / resolution.y + time*6.2831/time_rate);
-            resy += sin({cu}.x*x / resolution.x + {cu}.y*y / resolution.y + time*6.2831/time_rate);
-            ''').format(cu=current_uniform)
+            if self.time_active:
+                shader_mid += ('''
+                resx += cos({cu}.x*x / resolution.x + {cu}.y*y / resolution.y + time*6.2831/time_rate);
+                resy += sin({cu}.x*x / resolution.x + {cu}.y*y / resolution.y + time*6.2831/time_rate);
+                ''').format(cu=current_uniform)
+            else:
+                shader_mid += ('''
+                resx += cos({cu}.x*x / resolution.x + {cu}.y*y / resolution.y);
+                resy += sin({cu}.x*x / resolution.x + {cu}.y*y / resolution.y);
+                ''').format(cu=current_uniform)
+                
             i += 1
         shader_mid += ('''
         max_intensity = {};
@@ -263,7 +274,8 @@ class PlaneWaveApp(App):
             self.time_slider = TimeSlider()
             self.time_slider.ids.slider.value = self.root.shader_widget.time_rate
             self.time_slider.bind(
-                time_rate=self.root.shader_widget.setter('time_rate'))
+                time_rate=self.root.shader_widget.setter('time_rate'),
+                time_active=self.root.shader_widget.setter('time_active'))
         self.time_slider.open()
 
     def save_image(self, size=None):
